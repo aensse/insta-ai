@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pydantic import ValidationError
 
-from src.main import instasea, config_dict
+from src.main import bot, config_dict
 from src.core.paths import mqtt_file
 from src.services.instagram import IgClient
 from src.services.tickets import TicketsManager
@@ -45,7 +45,7 @@ class QueueManager:
 
 
 
-@instasea.command(help="Real-life chatting.")
+@bot.command(help="Real-life chatting.")
 def chat():
     uvicorn.run(app, host="127.0.0.1", port=8000)
 

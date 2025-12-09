@@ -1,7 +1,7 @@
 import logging
-from src.main import instasea
+from src.main import bot
 
-@instasea.command(help="Collecting pending messages to database.")
+@bot.command(help="Collecting pending messages to database.")
 def collect():
     logging.info("Soon!")
     
