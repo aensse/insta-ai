@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import SecretStr, computed_field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,35 +10,23 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8"
     )
 
-    xai_api_key: SecretStr
-    ig_username: str
-    ig_password: str
-    ig_secret: str | None = None
+    app_name: str = "insta-ai"
+    db_name: str = "insta-ai.db"
 
-    grok_model: str = "grok-4-1-fast-non-reasoning"
+    username: str
+    password: str
+    secret: str | None = None
 
-    db_name: str = "threads.db"
+    ai_instructions_file: Path = Field(default=Path(__file__).parent.parent.parent/"instructions.txt")
+    ig_session_file: Path = Field(default=Path(__file__).parent.parent.parent/"ig_session.json")
+
+    llm_api_key: SecretStr
+    llm_model: str = "grok-4-1-fast-non-reasoning"
 
     @property
     def db_url(self):
         return f"sqlite+aiosqlite:///./{self.db_name}"
 
 
-
-class Files(BaseSettings):
-    instructions_file: Path = Path.cwd() / "instructions.txt"
-    session_file: Path = Path.cwd() / "ig_session.json"
-    mqtt_file: Path = Path.cwd() / "mqtt_process.js"
-
-    @computed_field
-    @property
-    def get_instructions(self) -> str:
-        if not self.instructions_file.exists():
-            raise ValueError("Instructions for AI does not exist")
-        with self.instructions_file.open("r", encoding="utf-8") as f:
-            return f.read()
-
-
 settings = Settings()
-files = Files()
 

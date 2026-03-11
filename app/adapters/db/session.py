@@ -5,13 +5,13 @@ from app.core.config import settings
 
 DATABASE_URL = settings.db_url
 
+class Base(DeclarativeBase):
+    pass
+
 engine = create_async_engine(
     url=DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
-
-class Base(DeclarativeBase):
-    pass
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -22,3 +22,4 @@ AsyncSessionLocal = async_sessionmaker(
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
+

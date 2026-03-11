@@ -1,6 +1,7 @@
 .venv
 .env
+.ruff*
 ig_session.json
-threads.db
+insta-ai.db
 uv.lock
 __pycache__

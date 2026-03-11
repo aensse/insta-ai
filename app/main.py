@@ -1,67 +1,28 @@
-import asyncio
-from typing import Annotated
+from contextlib import asynccontextmanager
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Request
+from fastapi import FastAPI
 
-from app.core.config import files, settings
+from app.adapters.db.session import Base, engine
+from app.adapters.external.instagram.aiograpi_adapter import AiograpiAdapter
+from app.adapters.external.instagram.aiograpi_client_factory import create_client
+from app.api import message
+from app.core.config import settings
 from app.core.logger import setup_logging
-from app.infrastructure.async_queue import AsyncQueue
-from app.infrastructure.db_config import AsyncSessionLocal, Base, engine
-from app.infrastructure.db_queries import ThreadsQueries
-from app.infrastructure.grok_client import GrokClient
-from app.infrastructure.instagram_client import InstagramClient
-from app.infrastructure.schemas import UserMessage
-from app.services.ig_client_factory import Credentials, create_client
-from app.services.message_responder import MessageResponderDeps, send_message_to_bot
+
+setup_logging()
 
 
-async def get_threads_queries():
-    session = AsyncSessionLocal()
-    try:
-        yield ThreadsQueries(session)
-    finally:
-        await session.close()
-
-
-async def get_ai_client() -> GrokClient:
-    return GrokClient(settings.xai_api_key.get_secret_value(), settings.grok_model, files.get_instructions)
-
-
+@asynccontextmanager
 async def lifespan(_app: FastAPI):
-
-    setup_logging()
-
-    credentials = Credentials(settings.ig_username, settings.ig_password, settings.ig_secret)
-    cl = await create_client(files.session_file, credentials)
-
-    q = AsyncQueue(asyncio.Queue())
-    task = asyncio.create_task(q.consumer())
-
-    app.state.ig = InstagramClient(cl)
-    app.state.q = q
-
+    cl = await create_client(settings.ig_session_file, settings.username, settings.password, settings.secret)
+    _app.state.aiograpi = AiograpiAdapter(cl)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
     yield
-
-    task.cancel()
     await engine.dispose()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
+app.include_router(message.router, prefix="/api/v1/messages")
 
-@app.post("/api/message")
-async def process_message(
-    request: Request,
-    message: UserMessage,
-    background_task: BackgroundTasks,
-    db: Annotated[ThreadsQueries, Depends(get_threads_queries)],
-    ai: Annotated[GrokClient, Depends(get_ai_client)],
-):
-    task = send_message_to_bot
-    deps = MessageResponderDeps(message, db, ai, request.app.state.ig, request.app.state.q)
-
-    background_task.add_task(task, deps)
-    return {"message": "Notification sent to bot in background."}

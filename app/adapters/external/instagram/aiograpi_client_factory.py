@@ -32,6 +32,7 @@ DEVICE = {
 
 USER_AGENT = "Instagram 310.0.0.40.111 Android (34/14.0.0; 560dpi; 1440x3200; samsung; SM-S928B; q2q; q2qxx; pl_PL; 310040111)"  # noqa: E501
 
+# TODO: move that data into YAML config file
 
 @dataclass
 class Credentials:
@@ -40,27 +41,27 @@ class Credentials:
     secret: str | None
 
 
-async def login_via_credentials(cl: Client, credentials: Credentials) -> None:
-    if credentials.secret:
-        code = pyotp.TOTP(credentials.secret)
-        await cl.login(credentials.username, credentials.password, verification_code=code.now())
+async def login_via_credentials(cl: Client, username: str, password: str, secret: str | None) -> None:
+    if secret:
+        code = pyotp.TOTP(secret)
+        await cl.login(username, password, verification_code=code.now())
         return
-    await cl.login(credentials.username, credentials.password)
+    await cl.login(username, password)
 
 
-async def login_via_session(cl: Client, credentials: Credentials, session: dict) -> None:
+async def login_via_session(cl: Client, session: dict, username: str, password: str, secret: str | None) -> None:
     cl.set_settings(session)
-    cl.username = credentials.username
+    cl.username = username
     try:
         await cl.get_timeline_feed()
     except LoginRequired:
         old_session = cl.get_settings()
         cl.set_settings({})
         cl.set_uuids(old_session["uuids"])
-        await login_via_credentials(cl, credentials)
+        await login_via_credentials(cl, username, password, secret)
 
 
-async def create_client(session_file: Path, credentials: Credentials) -> Client:
+async def create_client(session_file: Path, username: str, password: str, secret: str | None) -> Client:
     cl = Client()
     cl.delay_range = [3, 7]
     cl.set_device(DEVICE)
@@ -68,8 +69,10 @@ async def create_client(session_file: Path, credentials: Credentials) -> Client:
     if session_file.exists():
         session = cl.load_settings(session_file)
         if isinstance(session, dict):
-            await login_via_session(cl, credentials, session)
+            await login_via_session(cl, session, username, password, secret)
             return cl
-    await login_via_credentials(cl, credentials)
+    await login_via_credentials(cl, username, password, secret)
     cl.dump_settings(session_file)
     return cl
+
+
