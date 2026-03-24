@@ -19,13 +19,14 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "pytest-mock>=3.15.1",
 ]
 lint = [
     "ruff>=0.15.7",
 ]
 
 [tool.pytest.ini_options]
-pythonpath = "src"
+pythonpath = "."
 
 [tool.ruff.lint]
 extend-select = ["ASYNC", "FAST", "LOG", "PTH"]

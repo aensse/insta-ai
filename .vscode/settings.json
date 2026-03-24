@@ -5,7 +5,7 @@
         "reportMissingImports": "none"
     },
     "python.analysis.extraPaths": [
-        "${workspaceFolder}/app"
+        "${workspaceFolder}"
     ],
     "python.envFile": "${workspaceFolder}/.env",
     "python.terminal.activateEnvironment": true,

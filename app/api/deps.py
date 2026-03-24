@@ -1,7 +1,7 @@
 from functools import cache
 from pathlib import Path
 
-from fastapi import HTTPException, Query, Request, status
+from fastapi import BackgroundTasks, HTTPException, Query, Request, status
 from xai_sdk import AsyncClient
 
 from app.adapters.db.repositories.user_repository import UsersDB
@@ -55,3 +55,7 @@ async def get_llm_adapter(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported adapter"
         )
     return adapter()
+
+
+async def get_background_tasks(background_tasks: BackgroundTasks) -> BackgroundTasks:
+    return background_tasks
