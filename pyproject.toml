@@ -10,40 +10,22 @@ dependencies = [
     "aiosqlite>=0.22.1",
     "beautifulsoup4>=4.14.3",
     "fastapi[standard]>=0.128.7",
-    "pwdlib[argon2]>=0.3.0",
     "pydantic-settings>=2.12.0",
     "pyotp>=2.9.0",
     "sqlalchemy>=2.0.46",
     "xai-sdk>=1.6.1",
 ]
 
-[tool.ruff.lint]
-select = ["ALL"]
-ignore = [
-    "ANN201",
-    "ANN204",  
-    "COM812",  # missing-trailing-comma
-    "CPY001",  # Missing copyright notice at top of file
-    "D100",    # Missing docstring in public module
-    "D101",    # Missing docstring in public class
-    "D102",
-    "D103",    # Missing docstring in public function
-    "D104",    # Missing docstring in public package
-    "D107",
-    "D203",    # blank line required before class docstring
-    "D211",    # no-blank-line-before-class
-    "D213",    # multi-line-summary-second-line
-    "EM101",   # raw-string-in-exception
-    "FIX002",  # line-contains-todo
-    "ISC001",  # Conflicts with formatter ruff
-    "INP001",
-    "PLR0904", # Too many public methods (... > 20)
-    "TC001",
-    "TC002",
-    "TD002",   # Missing author in TODO `# TODO(<author_name>): ...`
-    "TD003",   # missing-todo-link
-    "TRY003",  # raise-vanilla-args
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
+lint = [
+    "ruff>=0.15.7",
 ]
 
-[tool.ruff]
-line-length = 120
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[tool.ruff.lint]
+extend-select = ["ASYNC", "FAST", "LOG", "PTH"]

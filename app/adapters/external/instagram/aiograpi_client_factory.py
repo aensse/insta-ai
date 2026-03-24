@@ -27,12 +27,13 @@ DEVICE = {
     "phone_id": "7a9b3c2d-1e4f-8560-9d8e-f0123456789a",
     "uuid": "550e8400-e29b-41d4-a716-446655440000",
     "client_session_id": "550e8400-e29b-41d4-a716-446655440000",
-    "ig_android_id": "android-7a9b3c2d1e4f8560"
+    "ig_android_id": "android-7a9b3c2d1e4f8560",
 }
 
 USER_AGENT = "Instagram 310.0.0.40.111 Android (34/14.0.0; 560dpi; 1440x3200; samsung; SM-S928B; q2q; q2qxx; pl_PL; 310040111)"  # noqa: E501
 
 # TODO: move that data into YAML config file
+
 
 @dataclass
 class Credentials:
@@ -41,7 +42,9 @@ class Credentials:
     secret: str | None
 
 
-async def login_via_credentials(cl: Client, username: str, password: str, secret: str | None) -> None:
+async def login_via_credentials(
+    cl: Client, username: str, password: str, secret: str | None
+) -> None:
     if secret:
         code = pyotp.TOTP(secret)
         await cl.login(username, password, verification_code=code.now())
@@ -49,7 +52,9 @@ async def login_via_credentials(cl: Client, username: str, password: str, secret
     await cl.login(username, password)
 
 
-async def login_via_session(cl: Client, session: dict, username: str, password: str, secret: str | None) -> None:
+async def login_via_session(
+    cl: Client, session: dict, username: str, password: str, secret: str | None
+) -> None:
     cl.set_settings(session)
     cl.username = username
     try:
@@ -61,7 +66,9 @@ async def login_via_session(cl: Client, session: dict, username: str, password: 
         await login_via_credentials(cl, username, password, secret)
 
 
-async def create_client(session_file: Path, username: str, password: str, secret: str | None) -> Client:
+async def create_client(
+    session_file: Path, username: str, password: str, secret: str | None
+) -> Client:
     cl = Client()
     cl.delay_range = [3, 7]
     cl.set_device(DEVICE)
@@ -74,5 +81,3 @@ async def create_client(session_file: Path, username: str, password: str, secret
     await login_via_credentials(cl, username, password, secret)
     cl.dump_settings(session_file)
     return cl
-
-

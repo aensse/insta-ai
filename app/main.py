@@ -14,7 +14,9 @@ setup_logging()
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    cl = await create_client(settings.ig_session_file, settings.username, settings.password, settings.secret)
+    cl = await create_client(
+        settings.ig_session_file, settings.username, settings.password, settings.secret
+    )
     _app.state.aiograpi = AiograpiAdapter(cl)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -25,4 +27,3 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
 app.include_router(message.router, prefix="/api/v1/messages")
-

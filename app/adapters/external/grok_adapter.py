@@ -8,12 +8,18 @@ from app.domain.models import InstagramThread, LLMResponse
 
 
 class ThreadInfo(BaseModel):
-    message: Annotated[str, Field(description="Message to the user based on the context of the entire conversation.")]
+    message: Annotated[
+        str,
+        Field(
+            description="Message to the user based on the context of the entire conversation."
+        ),
+    ]
     status: Annotated[
         Literal["active", "blocked"],
-        Field(description="User status based on instructions from the beginning of the conversation."),
+        Field(
+            description="User status based on instructions from the beginning of the conversation."
+        ),
     ]
-
 
 
 class GrokLLMAdapter:

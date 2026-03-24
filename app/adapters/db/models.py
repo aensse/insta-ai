@@ -16,6 +16,3 @@ class User(Base):
 
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[str] = mapped_column(String, nullable=False, default="active")
-
-
-

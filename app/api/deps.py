@@ -11,7 +11,6 @@ from app.adapters.external.instagram.aiograpi_adapter import AiograpiAdapter
 from app.core.config import settings
 from app.ports.llm_port import LLMPort
 
-# ===DATABASE===
 
 async def get_users_db():
     session = AsyncSessionLocal()
@@ -20,37 +19,39 @@ async def get_users_db():
     finally:
         await session.close()
 
-# ===FILES===
 
 @cache
 def get_instructions(file: Path = settings.ai_instructions_file) -> str:
     if not file.exists():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Instructions for AI does not exist")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Instructions for AI does not exist",
+        )
     with file.open("r", encoding="utf-8") as f:
         return f.read()
 
 
-# ===INSTAGRAM===
-
 def get_aiograpi_adapter(request: Request) -> AiograpiAdapter:
     return request.app.state.aiograpi
 
-# ===LLM===
 
 def get_grok_adapter() -> GrokLLMAdapter:
     return GrokLLMAdapter(
-        cl=AsyncClient(
-            api_key=settings.llm_api_key.get_secret_value()), model=settings.llm_model, instructions=get_instructions()
+        cl=AsyncClient(api_key=settings.llm_api_key.get_secret_value()),
+        model=settings.llm_model,
+        instructions=get_instructions(),
     )
 
-LLM_ADAPTERS = {
-    "grok": get_grok_adapter
-}
 
-async def get_llm_adapter(adapter_name: str = Query("grok", alias="llm_adapter")) -> LLMPort:
+LLM_ADAPTERS = {"grok": get_grok_adapter}
+
+
+async def get_llm_adapter(
+    adapter_name: str = Query("grok", alias="llm_adapter"),
+) -> LLMPort:
     adapter = LLM_ADAPTERS.get(adapter_name)
     if not adapter:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported adapter")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported adapter"
+        )
     return adapter()
-
-

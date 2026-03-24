@@ -17,6 +17,7 @@ type InstagramDep = Annotated[InstagramPort, Depends(get_aiograpi_adapter)]
 
 router = APIRouter()
 
+
 @router.post("")
 async def process_message(
     data: InstagramMessageIn,
@@ -26,5 +27,7 @@ async def process_message(
     instagram: InstagramDep,
 ):
     message = data.model_dump(exclude={"action_params", "category", "chatbot_id"})
-    background_tasks.add_task(handle_message, InstagramMessage(**message), db, llm, instagram)
+    background_tasks.add_task(
+        handle_message, InstagramMessage(**message), db, llm, instagram
+    )
     return {"message": "Notification sent to bot in background."}

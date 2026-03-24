@@ -4,14 +4,12 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validat
 
 
 class ActionParams(BaseModel):
-
     model_config = ConfigDict(populate_by_name=True)
 
     thread_id: Annotated[str, Field(alias="id")]
 
 
 class InstagramMessageIn(BaseModel):
-
     model_config = ConfigDict(populate_by_name=True)
 
     message: Annotated[str, Field(min_length=2, max_length=5000)]

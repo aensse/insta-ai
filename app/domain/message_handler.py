@@ -24,11 +24,14 @@ async def handle_message(
     if not user_status:
         await db.add_user(message)
     if user_status == "blocked":
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Conversation with user already finished")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Conversation with user already finished",
+        )
 
     async with lock:
         if message.sender_id in USERS_WAITING_FOR_RESPONSE:
-                return
+            return
 
     async with instagram_lock:
         USERS_WAITING_FOR_RESPONSE.add(message.sender_id)

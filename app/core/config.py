@@ -5,20 +5,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    app_name: str = "insta-ai"
-    db_name: str = "insta-ai.db"
+    app_name: str = "insta_ai"
+    db_name: str = "database.db"
 
     username: str
     password: str
     secret: str | None = None
 
-    ai_instructions_file: Path = Field(default=Path(__file__).parent.parent.parent/"instructions.txt")
-    ig_session_file: Path = Field(default=Path(__file__).parent.parent.parent/"ig_session.json")
+    ai_instructions_file: Path = Field(
+        default=Path(__file__).parent.parent.parent
+        / "chatbot_dependencies"
+        / "instructions.txt"
+    )
+    ig_session_file: Path = Field(
+        default=Path(__file__).parent.parent.parent
+        / "chatbot_dependencies"
+        / "session.json"
+    )
 
     llm_api_key: SecretStr
     llm_model: str = "grok-4-1-fast-non-reasoning"
@@ -29,4 +34,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

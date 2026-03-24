@@ -20,4 +20,3 @@ class InstagramThread:
 class LLMResponse:
     message: str
     status: Literal["active", "blocked"]
-

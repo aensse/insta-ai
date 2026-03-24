@@ -6,7 +6,6 @@ from app.domain.models import InstagramMessage
 
 
 class UsersDB:
-
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
@@ -25,8 +24,8 @@ class UsersDB:
 
     async def add_user(self, message: InstagramMessage) -> None:
         user = models.User(
-            instagram_user_id = message.sender_id,
-            instagram_thread_id = message.thread_id,
+            instagram_user_id=message.sender_id,
+            instagram_thread_id=message.thread_id,
             name=message.sender_username,
         )
         self.db.add(user)
@@ -38,5 +37,3 @@ class UsersDB:
         user.status = new_status
         await self.db.commit()
         await self.db.refresh(user)
-
-
